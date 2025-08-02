@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<addon scheme="3.0">
+    <id>express_delivery</id>
+    <version>1.0</version>
+    <name>Экспресс доставка</name>
+    <status>active</status>
+    <description>Добавляет метод экспресс-доставки с гибким тарифом</description>
+    <default_language>ru</default_language>
+    <priority>10000</priority>
+    <language_variables>
+        <item lang="en" id="express_hide_icon">Hide icon for on checkout page</item>
+        <item lang="ru" id="express_hide_icon">Спрятать иконку на странице оформления заказа</item>
+        <item lang="en" id="express_notification">Notification for express delivery</item>
+        <item lang="ru" id="express_notification">Уведомление на странице товара</item>
+        <item lang="en" id="express_store_locations">Store Locations for Express Delivery</item>
+        <item lang="ru" id="express_store_locations">Магазины для экспресс доставки</item>
+        <item lang="en" id="express_store_locations_tooltip">
+            Select the store locations that will be available for express delivery.
+        </item>
+        <item lang="ru" id="express_store_locations_tooltip">
+            Выберите магазины, которые будут доступны для экспресс доставки.
+        </item>
+        <item lang="ru" id="add_store_locations">Добавить магазины</item>
+        <item lang="en" id="add_store_locations">Add Store Locations</item>
+        <item lang="ru" id="is_express_delivery">Это экспресс доставка</item>
+        <item lang="en" id="is_express_delivery">This is express delivery</item>
+    </language_variables>
+     <queries>
+        <item>ALTER TABLE `?:shippings` ADD `is_express_delivery` ENUM('Y', 'N') NOT NULL DEFAULT 'N'</item>
+        <item>ALTER TABLE `?:shippings` ADD `express_hide_icon` ENUM('Y', 'N') NOT NULL DEFAULT 'N'</item>
+        <item>ALTER TABLE `?:shippings` ADD `express_categories` text NOT NULL DEFAULT ''</item>
+        <item>ALTER TABLE `?:shippings` ADD `express_store_locations` text NOT NULL DEFAULT ''</item>
+        
+        <item for="uninstall">ALTER TABLE `?:shippings` DROP `is_express_delivery`</item>
+        <item for="uninstall">ALTER TABLE `?:shippings` DROP `express_hide_icon`</item>
+        <item for="uninstall">ALTER TABLE `?:shippings` DROP `express_categories`</item>
+        <item for="uninstall">ALTER TABLE `?:shippings` DROP `express_store_locations`</item>
+        
+    </queries>
+</addon>
