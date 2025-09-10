@@ -13,6 +13,12 @@ function fn_express_delivery_calculate_cart_content_after_shipping_calculation(&
         return;
     }
 
+    // Проверяем, находимся ли мы в админке на странице редактирования заказа
+    $is_admin_order_edit = (defined('AREA') && AREA == 'A') && 
+                          (!empty($_REQUEST['dispatch']) && 
+                          ($_REQUEST['dispatch'] == 'order_management.update' || 
+                           $_REQUEST['dispatch'] == 'order_management.place_order.save'));
+
     // Получаем все экспресс доставки по company_id
     $shippings = db_get_hash_array(
         "SELECT * FROM ?:shippings WHERE is_express_delivery = 'Y' AND status = 'A'",
@@ -69,18 +75,21 @@ function fn_express_delivery_calculate_cart_content_after_shipping_calculation(&
             $in_categories = !empty($product_category_ids) &&
                              !empty(array_intersect($product_category_ids, $all_express_categories));
 
-            // Проверка складов
-            $express_store_location_ids = !empty($shipping_info['express_store_locations'])
-                ? array_map('intval', explode(',', $shipping_info['express_store_locations']))
-                : [];
-
+            // В админке при редактировании/сохранении заказа НЕ проверяем наличие на складе
             $store_location_match = true;
-            if (!empty($express_store_location_ids)) {
-                $product_store_ids = db_get_fields(
-                    "SELECT warehouse_id FROM ?:warehouses_products_amount WHERE product_id = ?i AND amount > 0",
-                    $product_id
-                );
-                $store_location_match = !empty(array_intersect($product_store_ids, $express_store_location_ids));
+            if (!$is_admin_order_edit) {
+                // Проверка складов (только для фронтенда)
+                $express_store_location_ids = !empty($shipping_info['express_store_locations'])
+                    ? array_map('intval', explode(',', $shipping_info['express_store_locations']))
+                    : [];
+
+                if (!empty($express_store_location_ids)) {
+                    $product_store_ids = db_get_fields(
+                        "SELECT warehouse_id FROM ?:warehouses_products_amount WHERE product_id = ?i AND amount > 0",
+                        $product_id
+                    );
+                    $store_location_match = !empty(array_intersect($product_store_ids, $express_store_location_ids));
+                }
             }
 
             // Если товар не удовлетворяет условиям — исключаем доставку
